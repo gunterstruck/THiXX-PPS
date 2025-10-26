@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datenschutz - Peter Pohl NFC Tool</title>
+    <!-- ANGEPASST: Pfad zum Stylesheet -->
+    <link rel="stylesheet" href="/THiXX-PPS/assets/style.css">
+    <style>
+        body {
+            padding: 1.5rem;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+        .content-box {
+            padding: 2.5rem;
+            background: rgba(var(--surface-color-rgb), 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(var(--border-color-rgb), 0.3);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            opacity: 0.7;
+        }
+        p, li {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        a {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body data-theme="customer-brand">
+    <div class="container">
+        <div class="content-box">
+            <h1>Datenschutzerklärung</h1>
+            <p>Diese App ist eine Progressive Web App (PWA), die auf Ihrem Gerät ausgeführt wird.</p>
+            <h2>Datenspeicherung</h2>
+            <p>Alle Daten, die Sie in dieser App eingeben (z. B. in Formularen), werden ausschließlich lokal auf Ihrem Gerät im Speicher Ihres Webbrowsers verarbeitet. Es findet keine Übertragung dieser Daten an einen externen Server statt.</p>
+            <h2>NFC-Funktion</h2>
+            <p>Die Web NFC API wird verwendet, um direkt mit NFC-Tags zu kommunizieren. Die gelesenen und geschriebenen Daten verlassen Ihr Gerät nicht, es sei denn, Sie speichern sie explizit als JSON-Datei.</p>
+            <h2>Caching</h2>
+            <p>Die App-Dateien werden lokal auf Ihrem Gerät zwischengespeichert (gecacht), um eine Offline-Nutzung zu ermöglichen. Dies dient ausschließlich der Funktionalität und Performance.</p>
+        </div>
+    </div>
+</body>
+</html>
