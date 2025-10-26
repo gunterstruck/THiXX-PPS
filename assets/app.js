@@ -116,10 +116,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const reverseFieldMap = Object.fromEntries(Object.entries(fieldMap).map(([k, v]) => [v, k]));
 
     // --- Utility Functions ---
-    // ... (unverändert) ...
     const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func.apply(this, args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
     function isValidDocUrl(url) { if (!url || typeof url !== 'string') return false; try { const parsed = new URL(url); return parsed.protocol === 'https:' || (parsed.protocol === 'http:' && (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')); } catch { return false; } }
     const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    /**
+     * NEU: Passt eine HEX-Farbe um einen bestimmten Prozentsatz an (Aufhellen/Abdunkeln).
+     * @param {string} color - Die HEX-Farbe (z.B. "#00457D")
+     * @param {number} percent - Der Prozentsatz (z.B. 20 für heller, -20 für dunkler)
+     * @returns {string} - Die neue HEX-Farbe
+     */
+    function adjustColor(color, percent) {
+        try {
+            let R = parseInt(color.substring(1, 3), 16);
+            let G = parseInt(color.substring(3, 5), 16);
+            let B = parseInt(color.substring(5, 7), 16);
+
+            R = parseInt(R * (100 + percent) / 100);
+            G = parseInt(G * (100 + percent) / 100);
+            B = parseInt(B * (100 + percent) / 100);
+
+            R = (R < 255) ? R : 255;
+            G = (G < 255) ? G : 255;
+            B = (B < 255) ? B : 255;
+            
+            R = (R > 0) ? R : 0;
+            G = (G > 0) ? G : 0;
+            B = (B > 0) ? B : 0;
+
+            const RR = ((R.toString(16).length === 1) ? "0" + R.toString(16) : R.toString(16)).substring(0,2);
+            const GG = ((G.toString(16).length === 1) ? "0" + G.toString(16) : G.toString(16)).substring(0,2);
+            const BB = ((B.toString(16).length === 1) ? "0" + B.toString(16) : B.toString(16)).substring(0,2);
+
+            return "#" + RR + GG + BB;
+        } catch (error) {
+            console.warn("Could not adjust color:", color, error);
+            return color; // Fallback auf Originalfarbe bei Fehler
+        }
+    }
 
     // --- Internationalization (i18n) ---
     function t(key, options = {}) { let text = key.split('.').reduce((obj, i) => obj?.[i], appState.translations); if (!text) { console.warn(`Translation not found for key: ${key}`); return key; } if (options.replace) { for (const [placeholder, value] of Object.entries(options.replace)) { text = text.replace(`{${placeholder}}`, value); } } return text; }
@@ -300,7 +334,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function displayParsedData(data) { protocolCard.innerHTML = ''; const fragments = { main: document.createDocumentFragment(), section1: document.createDocumentFragment(), section2: document.createDocumentFragment(), section3: document.createDocumentFragment(), footer: document.createDocumentFragment() }; const addPair = (frag, labelKey, val, unit) => { const el = createDataPair(t(labelKey), val, unit); if (el) frag.appendChild(el); }; addPair(fragments.main, 'HK-Nr', data['HK-Nr']); addPair(fragments.main, 'KKS', data['KKS']); addPair(fragments.section1, 'Leistung', data['Leistung'], 'kW'); addPair(fragments.section1, 'Strom', data['Strom'], 'A'); addPair(fragments.section1, 'Spannung', data['Spannung'], 'V'); addPair(fragments.section1, 'Widerstand', data['Widerstand'], 'Ω'); addPair(fragments.section2, 'Anzahl Heizkabeleinheiten', data['Anzahl Heizkabeleinheiten'], 'Stk'); addPair(fragments.section2, 'Trennkasten', data['Trennkasten'], 'Stk'); addPair(fragments.section2, 'Heizkabeltyp', data['Heizkabeltyp']); addPair(fragments.section2, 'Schaltung', data['Schaltung']); if (data['PT 100']) addPair(fragments.section2, 'Messwertgeber', `PT 100: ${data['PT 100']}`, 'Stk'); if (data['NiCr-Ni']) addPair(fragments.section2, 'Messwertgeber', `NiCr-Ni: ${data['NiCr-Ni']}`, 'Stk'); addPair(fragments.section3, 'Regler', data['Regler'], '°C'); addPair(fragments.section3, 'Sicherheitsregler/Begrenzer', data['Sicherheitsregler/Begrenzer'], '°C'); addPair(fragments.section3, 'Wächter', data['Wächter'], '°C'); addPair(fragments.footer, 'Projekt-Nr', data['Projekt-Nr']); addPair(fragments.footer, 'geprüft von', data['geprüft von']); addPair(fragments.footer, 'am', data['am']); const createSection = (frag, className) => { if (frag.hasChildNodes()) { const section = document.createElement('div'); section.className = className; section.appendChild(frag); protocolCard.appendChild(section); } }; createSection(fragments.main, 'card-main'); createSection(fragments.section1, 'card-section'); createSection(fragments.section2, 'card-section'); createSection(fragments.section3, 'card-section'); createSection(fragments.footer, 'card-footer'); docLinkContainer.innerHTML = ''; if (data['Dokumentation']) { const url = data['Dokumentation']; if (!isValidDocUrl(url)) { console.warn('Invalid documentation URL provided:', url); return; } const button = document.createElement('button'); button.className = 'btn doc-link-btn'; button.dataset.url = url; const isCached = await isUrlCached(url); if (isCached) { button.textContent = t('docOpenOffline'); button.onclick = () => window.open(url, '_blank'); } else { button.textContent = navigator.onLine ? t('docDownload') : t('docDownloadLater'); button.addEventListener('click', handleDocButtonClick); } docLinkContainer.appendChild(button); } }
 
     function applyConfig(config) {
-        // Diese Funktion ist der Schlüssel: Sie lädt das Design aus der config.json
         const selectedDesign = designs[config.design] || designs['thixx_standard'];
         
         if (!isIOS()) { 
@@ -313,10 +346,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerBtnImg = document.querySelector('.theme-btn[data-theme="customer-brand"] img');
         if (customerBtnImg && selectedDesign.icons?.icon512) { customerBtnImg.src = selectedDesign.icons.icon512; }
         
-        // HIER PASSIERT DIE MAGIE:
-        // Überschreibt die CSS-Standardfarben (Rot/Grau) mit den Peter-Pohl-Farben (Blau/Gelb)
-        if (selectedDesign.brandColors?.primary) { document.documentElement.style.setProperty('--primary-color-override', selectedDesign.brandColors.primary); }
-        if (selectedDesign.brandColors?.secondary) { document.documentElement.style.setProperty('--secondary-color-override', selectedDesign.brandColors.secondary); }
+        // KORRIGIERT: Setzt alle drei Farbvarianten (primary, dark, light)
+        if (selectedDesign.brandColors?.primary) { 
+            const primary = selectedDesign.brandColors.primary;
+            document.documentElement.style.setProperty('--primary-color-override', primary);
+            // Werte für Dunkler/Heller anpassen (z.B. -20% und +20%)
+            // Für Blau (#00457D) -> Dark ~#003764, Light ~#005396
+            // Für Gelb (#FFEC00) -> Dark ~#ccbe00, Light ~#fff033
+            // Die adjustColor-Funktion ist eine Annäherung.
+            document.documentElement.style.setProperty('--primary-dark-override', adjustColor(primary, -20));
+            document.documentElement.style.setProperty('--primary-light-override', adjustColor(primary, 20));
+        }
+        
+        if (selectedDesign.brandColors?.secondary) { 
+            document.documentElement.style.setProperty('--secondary-color-override', selectedDesign.brandColors.secondary);
+            // Optional: Auch sekundäre Farben anpassen, falls nötig
+            // document.documentElement.style.setProperty('--secondary-dark-override', adjustColor(selectedDesign.brandColors.secondary, -20));
+            // document.documentElement.style.setProperty('--secondary-light-override', adjustColor(selectedDesign.brandColors.secondary, 20));
+        }
     }
 
     // --- NFC Logic ---
@@ -428,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const blob = new Blob([JSON.stringify(newManifest)], { type: 'application/json' }); 
         manifestLink.href = URL.createObjectURL(blob); 
     }
-    // ... (Rest der UI/UX-Funktionen unverändert) ...
     function applyTheme(themeName) { const themeButtons = document.querySelectorAll('.theme-btn'); document.documentElement.setAttribute('data-theme', themeName); localStorage.setItem('thixx-theme', themeName); themeButtons.forEach(btn => { btn.classList.toggle('active', btn.dataset.theme === themeName); }); const metaThemeColor = document.querySelector('meta[name="theme-color"]'); if (metaThemeColor) { const colors = { dark: '#0f172a', thixx: '#f8f9fa', 'customer-brand': '#FCFCFD' }; metaThemeColor.setAttribute('content', colors[themeName] || '#FCFCFD'); } }
     function setupReadTabInitialState() { protocolCard.innerHTML = ''; const p = document.createElement('p'); p.className = 'placeholder-text'; p.textContent = t('placeholderRead'); protocolCard.appendChild(p); docLinkContainer.innerHTML = ''; if(readActions) readActions.classList.add('hidden'); }
     function initCollapsibles() { document.querySelectorAll('.collapsible').forEach(el => makeCollapsible(el)) }
