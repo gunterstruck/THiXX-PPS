@@ -40,15 +40,10 @@
 
 /* Customer Brand Theme */
 :root[data-theme="customer-brand"] {
-    /* * KORRIGIERT: Verwendet jetzt die von app.js gesetzten Override-Variablen
-     * für ALLE drei Farbvarianten.
-     */
     --primary-color: var(--primary-color-override, #d54b2a);
-    --secondary-color: var(--secondary-color-override, #6C6B66);
     --primary-dark: var(--primary-dark-override, #B03D23);
     --primary-light: var(--primary-light-override, #E56B51);
-    
-    /* Restliche Theme-Definition */
+    --secondary-color: var(--secondary-color-override, #6C6B66);
     --background-color: #FCFCFD;
     --surface-color: #FFFFFF;
     --surface-light: #f0f0f0;
@@ -63,8 +58,6 @@
     --body-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-/* * Der alte globale Override-Block wurde entfernt.
- */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -616,5 +609,3 @@ footer { padding: 1.5rem 0; text-align: center; }
     #legal-info { padding: 1.25rem; }
     .legal-content { font-size: 0.85rem; line-height: 1.6; }
 }
-
-
