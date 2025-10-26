@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- DOM Element References ---
-    // ... (unverändert) ...
     const headerElement = document.querySelector('header');
     const tabsContainer = document.querySelector('.tabs');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -111,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkForUpdateBtn = document.getElementById('check-for-update-btn');
 
     // --- Data Mapping ---
-    // ... (unverändert) ...
     const fieldMap = { 'HK-Nr': 'HK', 'KKS': 'KKS', 'Leistung': 'P', 'Strom': 'I', 'Spannung': 'U', 'Widerstand': 'R', 'Regler': 'Reg', 'Sicherheitsregler/Begrenzer': 'Sich', 'Wächter': 'Wäch', 'Projekt-Nr': 'Proj', 'Anzahl Heizkabeleinheiten': 'Anz', 'Trennkasten': 'TB', 'Heizkabeltyp': 'HKT', 'Schaltung': 'Sch', 'PT 100': 'PT100', 'NiCr-Ni': 'NiCr', 'geprüft von': 'Chk', 'am': 'Date', 'Dokumentation': 'Doc' };
     const reverseFieldMap = Object.fromEntries(Object.entries(fieldMap).map(([k, v]) => [v, k]));
 
@@ -184,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyTranslations() { document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); }); document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); }); document.title = t('appTitle'); }
 
     // --- Error Handling ---
-    // ... (unverändert) ...
     class ErrorHandler { static handle(error, context = 'General') { const readableError = this.getReadableError(error); console.error(`[${context}]`, error); showMessage(readableError, 'err'); addLogEntry(`${context}: ${readableError}`, 'err'); return readableError; } static getReadableError(error) { const errorMap = { 'NotAllowedError': 'errors.NotAllowedError', 'NotSupportedError': 'errors.NotSupportedError', 'NotFoundError': 'errors.NotFoundError', 'NotReadableError': 'errors.NotReadableError', 'NetworkError': 'errors.NetworkError', 'AbortError': 'errors.AbortError', 'TimeoutError': 'errors.WriteTimeoutError' }; if (error.name === 'NetworkError' && generateUrlFromForm().length > CONFIG.MAX_PAYLOAD_SIZE) { return t('messages.payloadTooLarge'); } if (errorMap[error.name]) { return t(errorMap[error.name]); } return error.message || t('errors.unknown'); } }
 
     // --- App Initialization ---
@@ -233,7 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
         checkNfcSupport();
         initCollapsibles();
         
-        if (!processUrlParameters()) {
+        // KORRIGIERT (BUGFIX): `await` hinzugefügt, um auf das Parsen der URL zu warten
+        if (!(await processUrlParameters())) {
             setupReadTabInitialState();
             switchTab('read-tab');
             if (readResultContainer) {
@@ -246,7 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
     main();
 
     // --- Event Handler Definitions for robust add/remove ---
-    // ... (unverändert) ...
     const handleTabClick = (e) => { const tabLink = e.target.closest('.tab-link'); if (tabLink) switchTab(tabLink.dataset.tab); };
     const handleThemeChange = (e) => { const themeBtn = e.target.closest('.theme-btn'); if (themeBtn) applyTheme(themeBtn.dataset.theme); };
     const handleReloadClick = () => { navigator.serviceWorker.getRegistration().then(reg => { if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } }); };
@@ -272,13 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function setupEventListeners() {
-        // ... (unverändert) ...
         if(tabsContainer) tabsContainer.addEventListener('click', handleTabClick);
         if(themeSwitcher) themeSwitcher.addEventListener('click', handleThemeChange);
         if(nfcStatusBadge) nfcStatusBadge.addEventListener('click', handleNfcAction);
         if(checkForUpdateBtn) checkForUpdateBtn.addEventListener('click', handleCheckForUpdate);
         
-        if (!isIOS()) {
+        if (!isIOS()) { 
             if (copyToFormBtn) {
                 copyToFormBtn.addEventListener('click', populateFormFromScan);
             }
@@ -303,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function cleanupEventListeners() {
-        // ... (unverändert) ...
         if(tabsContainer) tabsContainer.removeEventListener('click', handleTabClick);
         if(themeSwitcher) themeSwitcher.removeEventListener('click', handleThemeChange);
         if(nfcStatusBadge) nfcStatusBadge.removeEventListener('click', handleNfcAction);
@@ -329,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- UI & Display Logic ---
-    // ... (unverändert) ...
     function createDataPair(label, value, unit = '') { if (value === undefined || value === null || String(value).trim() === '') return null; const div = document.createElement('div'); div.className = 'data-pair'; const labelSpan = document.createElement('span'); labelSpan.className = 'data-pair-label'; labelSpan.textContent = label; const valueSpan = document.createElement('span'); valueSpan.className = 'data-pair-value'; valueSpan.textContent = `${value} ${unit}`.trim(); div.appendChild(labelSpan); div.appendChild(valueSpan); return div; }
     async function displayParsedData(data) { protocolCard.innerHTML = ''; const fragments = { main: document.createDocumentFragment(), section1: document.createDocumentFragment(), section2: document.createDocumentFragment(), section3: document.createDocumentFragment(), footer: document.createDocumentFragment() }; const addPair = (frag, labelKey, val, unit) => { const el = createDataPair(t(labelKey), val, unit); if (el) frag.appendChild(el); }; addPair(fragments.main, 'HK-Nr', data['HK-Nr']); addPair(fragments.main, 'KKS', data['KKS']); addPair(fragments.section1, 'Leistung', data['Leistung'], 'kW'); addPair(fragments.section1, 'Strom', data['Strom'], 'A'); addPair(fragments.section1, 'Spannung', data['Spannung'], 'V'); addPair(fragments.section1, 'Widerstand', data['Widerstand'], 'Ω'); addPair(fragments.section2, 'Anzahl Heizkabeleinheiten', data['Anzahl Heizkabeleinheiten'], 'Stk'); addPair(fragments.section2, 'Trennkasten', data['Trennkasten'], 'Stk'); addPair(fragments.section2, 'Heizkabeltyp', data['Heizkabeltyp']); addPair(fragments.section2, 'Schaltung', data['Schaltung']); if (data['PT 100']) addPair(fragments.section2, 'Messwertgeber', `PT 100: ${data['PT 100']}`, 'Stk'); if (data['NiCr-Ni']) addPair(fragments.section2, 'Messwertgeber', `NiCr-Ni: ${data['NiCr-Ni']}`, 'Stk'); addPair(fragments.section3, 'Regler', data['Regler'], '°C'); addPair(fragments.section3, 'Sicherheitsregler/Begrenzer', data['Sicherheitsregler/Begrenzer'], '°C'); addPair(fragments.section3, 'Wächter', data['Wächter'], '°C'); addPair(fragments.footer, 'Projekt-Nr', data['Projekt-Nr']); addPair(fragments.footer, 'geprüft von', data['geprüft von']); addPair(fragments.footer, 'am', data['am']); const createSection = (frag, className) => { if (frag.hasChildNodes()) { const section = document.createElement('div'); section.className = className; section.appendChild(frag); protocolCard.appendChild(section); } }; createSection(fragments.main, 'card-main'); createSection(fragments.section1, 'card-section'); createSection(fragments.section2, 'card-section'); createSection(fragments.section3, 'card-section'); createSection(fragments.footer, 'card-footer'); docLinkContainer.innerHTML = ''; if (data['Dokumentation']) { const url = data['Dokumentation']; if (!isValidDocUrl(url)) { console.warn('Invalid documentation URL provided:', url); return; } const button = document.createElement('button'); button.className = 'btn doc-link-btn'; button.dataset.url = url; const isCached = await isUrlCached(url); if (isCached) { button.textContent = t('docOpenOffline'); button.onclick = () => window.open(url, '_blank'); } else { button.textContent = navigator.onLine ? t('docDownload') : t('docDownloadLater'); button.addEventListener('click', handleDocButtonClick); } docLinkContainer.appendChild(button); } }
 
@@ -351,23 +345,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const primary = selectedDesign.brandColors.primary;
             document.documentElement.style.setProperty('--primary-color-override', primary);
             // Werte für Dunkler/Heller anpassen (z.B. -20% und +20%)
-            // Für Blau (#00457D) -> Dark ~#003764, Light ~#005396
-            // Für Gelb (#FFEC00) -> Dark ~#ccbe00, Light ~#fff033
-            // Die adjustColor-Funktion ist eine Annäherung.
             document.documentElement.style.setProperty('--primary-dark-override', adjustColor(primary, -20));
             document.documentElement.style.setProperty('--primary-light-override', adjustColor(primary, 20));
         }
         
         if (selectedDesign.brandColors?.secondary) { 
             document.documentElement.style.setProperty('--secondary-color-override', selectedDesign.brandColors.secondary);
-            // Optional: Auch sekundäre Farben anpassen, falls nötig
-            // document.documentElement.style.setProperty('--secondary-dark-override', adjustColor(selectedDesign.brandColors.secondary, -20));
-            // document.documentElement.style.setProperty('--secondary-light-override', adjustColor(selectedDesign.brandColors.secondary, 20));
         }
     }
 
     // --- NFC Logic ---
-    // ... (unverändert) ...
     async function handleNfcAction() { if (appState.isNfcActionActive || appState.isCooldownActive) return; const writeTab = document.getElementById('write-tab'); const isWriteMode = writeTab?.classList.contains('active') || false; if (!isWriteMode) { showMessage(t('messages.scanToReadInfo'), 'info'); return; } appState.isNfcActionActive = true; appState.abortController = new AbortController(); appState.nfcTimeoutId = setTimeout(() => { if (appState.abortController && !appState.abortController.signal.aborted) { appState.abortController.abort(new DOMException('NFC Operation Timed Out', 'TimeoutError')); } }, CONFIG.NFC_WRITE_TIMEOUT); try { const ndef = new NDEFReader(); const validationErrors = validateForm(); if (validationErrors.length > 0) { throw new Error(validationErrors.join('\n')); } setNfcBadge('writing'); const urlPayload = generateUrlFromForm(); const message = { records: [{ recordType: "url", data: urlPayload }] }; await writeWithRetries(ndef, message); } catch (error) { clearTimeout(appState.nfcTimeoutId); if (error.name !== 'AbortError') { ErrorHandler.handle(error, 'NFCAction'); } else if (error.message === 'NFC Operation Timed Out') { const timeoutError = new DOMException('Write operation timed out.', 'TimeoutError'); ErrorHandler.handle(timeoutError, 'NFCAction'); } abortNfcAction(); startCooldown(); } }
     async function writeWithRetries(ndef, message) { for (let attempt = 1; attempt <= CONFIG.MAX_WRITE_RETRIES; attempt++) { try { showMessage(t('messages.writeAttempt', { replace: { attempt, total: CONFIG.MAX_WRITE_RETRIES } }), 'info', CONFIG.NFC_WRITE_TIMEOUT); await ndef.write(message, { signal: appState.abortController.signal }); clearTimeout(appState.nfcTimeoutId); setNfcBadge('success', t('status.tagWritten')); showMessage(t('messages.writeSuccess'), 'ok'); 
     
@@ -382,8 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return; } catch (error) { console.warn(`Write attempt ${attempt} failed:`, error); if (attempt === CONFIG.MAX_WRITE_RETRIES || ['TimeoutError', 'AbortError'].includes(error.name)) { throw error; } await new Promise(resolve => setTimeout(resolve, 200)); } } }
 
     // --- Data Processing & Form Handling ---
-    // ... (unverändert) ...
-    function processUrlParameters() {
+    
+    // KORRIGIERT (BUGFIX): Funktion als `async` deklariert
+    async function processUrlParameters() {
         const params = new URLSearchParams(window.location.search);
         if (params.toString() === '') return false;
 
@@ -395,7 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (Object.keys(data).length > 0) {
             appState.scannedDataObject = data;
-            displayParsedData(data);
+            
+            // KORRIGIERT (BUGFIX): `await` hinzugefügt, um auf das Rendering zu warten
+            await displayParsedData(data);
+            
             if(rawDataOutput) rawDataOutput.value = window.location.href;
             if(readActions) readActions.classList.remove('hidden');
             switchTab('read-tab');
@@ -438,14 +429,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function validateForm() { const errors = []; const voltageInput = form.elements['Spannung']; if(voltageInput) { const voltage = parseFloat(voltageInput.value); if (voltage && (voltage < 0 || voltage > 1000)) { errors.push(t('errors.invalidVoltage')); } } const docUrlInput = form.elements['Dokumentation']; if(docUrlInput) { const docUrl = docUrlInput.value; if (docUrl && !isValidDocUrl(docUrl)) { errors.push(t('errors.invalidDocUrl')); } } const payloadByteSize = new TextEncoder().encode(generateUrlFromForm()).length; if (payloadByteSize > CONFIG.MAX_PAYLOAD_SIZE) { errors.push(t('messages.payloadTooLarge')); } return errors; }
 
     // --- Helper & State Functions ---
-    // ... (unverändert) ...
     function startCooldown() { appState.isCooldownActive = true; setNfcBadge('cooldown'); setTimeout(() => { appState.isCooldownActive = false; if ('NDEFReader' in window) setNfcBadge('idle'); }, CONFIG.COOLDOWN_DURATION) }
     function abortNfcAction() { clearTimeout(appState.nfcTimeoutId); if (appState.gracePeriodTimeoutId) { clearTimeout(appState.gracePeriodTimeoutId); appState.gracePeriodTimeoutId = null; } if (appState.abortController && !appState.abortController.signal.aborted) { appState.abortController.abort(new DOMException('User aborted', 'AbortError')); } appState.abortController = null; appState.isNfcActionActive = false; }
     function addLogEntry(message, type = 'info') { const timestamp = new Date().toLocaleTimeString(document.documentElement.lang, { hour: '2-digit', minute: '2-digit', second: '2-digit' }); appState.eventLog.unshift({ timestamp, message, type }); if (appState.eventLog.length > CONFIG.MAX_LOG_ENTRIES) appState.eventLog.pop(); renderLog(); }
     function renderLog() { if (!eventLogOutput) return; eventLogOutput.innerHTML = ''; appState.eventLog.forEach(entry => { const div = document.createElement('div'); div.className = `log-entry ${entry.type}`; const timestamp = document.createElement('span'); timestamp.className = 'log-timestamp'; timestamp.textContent = entry.timestamp; const message = document.createTextNode(` ${entry.message}`); div.appendChild(timestamp); div.appendChild(message); eventLogOutput.appendChild(div); }); }
 
     // --- Service Worker & Cache ---
-    // ... (unverändert) ...
     async function isUrlCached(url) { if (!('caches' in window)) return false; try { const cache = await caches.open('thixx-docs-v1'); const request = new Request(url, { mode: 'no-cors' }); const response = await cache.match(request); return !!response; } catch (error) { console.error("Cache check failed:", error); return false; } }
     async function handleDocButtonClick(event) { const button = event.target; const url = button.dataset.url; if (navigator.onLine) { window.open(url, '_blank'); button.textContent = t('docOpenOffline'); button.onclick = () => window.open(url, '_blank'); if (navigator.serviceWorker.controller) { navigator.serviceWorker.controller.postMessage({ action: 'cache-doc', url: url }); } } else { showMessage(t('docDownloadLater'), 'info'); button.textContent = t('docDownloadPending'); button.disabled = true; } }
 
