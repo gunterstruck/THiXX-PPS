@@ -1,5 +1,5 @@
 // ANGEPASST: Cache-Name für die neue App-Version
-const APP_CACHE_NAME = 'thixx-pps-robust-v6';
+const APP_CACHE_NAME = 'thixx-pps-robust-v7';
 const DOC_CACHE_NAME = 'thixx-docs-v1';
 
 /*
