@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration and Constants ---
-    // ANGEPASST: Scope für Peter Pohl
+    // KORRIGIERT: SCOPE auf /THiXX-PPS/ gesetzt
     const SCOPE = '/THiXX-PPS/';
     const BASE_URL = new URL('index.html', location.origin + SCOPE).href;
     const CONFIG = {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Design Templates ---
-    // ANGEPASST: Pfade und Branding-Parameter aktualisiert
+    // KORRIGIERT: Alle Pfade auf /THiXX-PPS/ gesetzt und Peter-Pohl-Design hinzugefügt
     const designs = {
     'thixx_standard': { 
         appName: "ThiXX NFC Tool", 
@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
             secondary: "#6c6b66" 
         } 
     },
-    // ANGEPASST: Peter Pohl Branding gemäß Spezifikation
     'peterpohl': { 
         appName: "Dipl.-Ing. Peter Pohl NFC Tool", 
         short_name: "Peter Pohl", 
@@ -85,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- DOM Element References ---
+    // ... (unverändert) ...
     const headerElement = document.querySelector('header');
     const tabsContainer = document.querySelector('.tabs');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -111,10 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkForUpdateBtn = document.getElementById('check-for-update-btn');
 
     // --- Data Mapping ---
+    // ... (unverändert) ...
     const fieldMap = { 'HK-Nr': 'HK', 'KKS': 'KKS', 'Leistung': 'P', 'Strom': 'I', 'Spannung': 'U', 'Widerstand': 'R', 'Regler': 'Reg', 'Sicherheitsregler/Begrenzer': 'Sich', 'Wächter': 'Wäch', 'Projekt-Nr': 'Proj', 'Anzahl Heizkabeleinheiten': 'Anz', 'Trennkasten': 'TB', 'Heizkabeltyp': 'HKT', 'Schaltung': 'Sch', 'PT 100': 'PT100', 'NiCr-Ni': 'NiCr', 'geprüft von': 'Chk', 'am': 'Date', 'Dokumentation': 'Doc' };
     const reverseFieldMap = Object.fromEntries(Object.entries(fieldMap).map(([k, v]) => [v, k]));
 
     // --- Utility Functions ---
+    // ... (unverändert) ...
     const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func.apply(this, args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
     function isValidDocUrl(url) { if (!url || typeof url !== 'string') return false; try { const parsed = new URL(url); return parsed.protocol === 'https:' || (parsed.protocol === 'http:' && (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')); } catch { return false; } }
     const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -125,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const lang = navigator.language.split('-')[0]; 
         const supportedLangs = ['de', 'en', 'es', 'fr']; 
         const selectedLang = supportedLangs.includes(lang) ? lang : 'de'; 
-        // ANGEPASST: Pfad zu den Sprachdateien
+        // KORRIGIERT: Pfad zu den Sprachdateien
         const path = `/THiXX-PPS/lang/${selectedLang}.json`; 
         try { 
             const response = await fetch(path); 
@@ -135,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { 
             console.error('Could not load translations, falling back to German.', error); 
             try { 
-                // ANGEPASST: Pfad zur Fallback-Sprachdatei
+                // KORRIGIERT: Pfad zur Fallback-Sprachdatei
                 const fallbackPath = `/THiXX-PPS/lang/de.json`; 
                 const response = await fetch(fallbackPath); 
                 appState.translations = await response.json(); 
@@ -148,12 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyTranslations() { document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); }); document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); }); document.title = t('appTitle'); }
 
     // --- Error Handling ---
+    // ... (unverändert) ...
     class ErrorHandler { static handle(error, context = 'General') { const readableError = this.getReadableError(error); console.error(`[${context}]`, error); showMessage(readableError, 'err'); addLogEntry(`${context}: ${readableError}`, 'err'); return readableError; } static getReadableError(error) { const errorMap = { 'NotAllowedError': 'errors.NotAllowedError', 'NotSupportedError': 'errors.NotSupportedError', 'NotFoundError': 'errors.NotFoundError', 'NotReadableError': 'errors.NotReadableError', 'NetworkError': 'errors.NetworkError', 'AbortError': 'errors.AbortError', 'TimeoutError': 'errors.WriteTimeoutError' }; if (error.name === 'NetworkError' && generateUrlFromForm().length > CONFIG.MAX_PAYLOAD_SIZE) { return t('messages.payloadTooLarge'); } if (errorMap[error.name]) { return t(errorMap[error.name]); } return error.message || t('errors.unknown'); } }
 
     // --- App Initialization ---
     async function loadConfig() { 
         try { 
-            // ANGEPASST: Pfad zur Konfigurationsdatei
+            // KORRIGIERT: Pfad zur Konfigurationsdatei
             const response = await fetch('/THiXX-PPS/config.json'); 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); 
             return await response.json(); 
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function main() {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // ANGEPASST: Pfad und Scope für Service Worker
+                // KORRIGIERT: Pfad und Scope für Service Worker
                 navigator.serviceWorker.register('/THiXX-PPS/sw.js', { scope: '/THiXX-PPS/' })
                     .then(registration => {
                         console.log('Service Worker registered:', registration.scope);
@@ -209,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     main();
 
     // --- Event Handler Definitions for robust add/remove ---
+    // ... (unverändert) ...
     const handleTabClick = (e) => { const tabLink = e.target.closest('.tab-link'); if (tabLink) switchTab(tabLink.dataset.tab); };
     const handleThemeChange = (e) => { const themeBtn = e.target.closest('.theme-btn'); if (themeBtn) applyTheme(themeBtn.dataset.theme); };
     const handleReloadClick = () => { navigator.serviceWorker.getRegistration().then(reg => { if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } }); };
@@ -234,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function setupEventListeners() {
+        // ... (unverändert) ...
         if(tabsContainer) tabsContainer.addEventListener('click', handleTabClick);
         if(themeSwitcher) themeSwitcher.addEventListener('click', handleThemeChange);
         if(nfcStatusBadge) nfcStatusBadge.addEventListener('click', handleNfcAction);
@@ -264,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function cleanupEventListeners() {
+        // ... (unverändert) ...
         if(tabsContainer) tabsContainer.removeEventListener('click', handleTabClick);
         if(themeSwitcher) themeSwitcher.removeEventListener('click', handleThemeChange);
         if(nfcStatusBadge) nfcStatusBadge.removeEventListener('click', handleNfcAction);
@@ -289,10 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- UI & Display Logic ---
+    // ... (unverändert) ...
     function createDataPair(label, value, unit = '') { if (value === undefined || value === null || String(value).trim() === '') return null; const div = document.createElement('div'); div.className = 'data-pair'; const labelSpan = document.createElement('span'); labelSpan.className = 'data-pair-label'; labelSpan.textContent = label; const valueSpan = document.createElement('span'); valueSpan.className = 'data-pair-value'; valueSpan.textContent = `${value} ${unit}`.trim(); div.appendChild(labelSpan); div.appendChild(valueSpan); return div; }
     async function displayParsedData(data) { protocolCard.innerHTML = ''; const fragments = { main: document.createDocumentFragment(), section1: document.createDocumentFragment(), section2: document.createDocumentFragment(), section3: document.createDocumentFragment(), footer: document.createDocumentFragment() }; const addPair = (frag, labelKey, val, unit) => { const el = createDataPair(t(labelKey), val, unit); if (el) frag.appendChild(el); }; addPair(fragments.main, 'HK-Nr', data['HK-Nr']); addPair(fragments.main, 'KKS', data['KKS']); addPair(fragments.section1, 'Leistung', data['Leistung'], 'kW'); addPair(fragments.section1, 'Strom', data['Strom'], 'A'); addPair(fragments.section1, 'Spannung', data['Spannung'], 'V'); addPair(fragments.section1, 'Widerstand', data['Widerstand'], 'Ω'); addPair(fragments.section2, 'Anzahl Heizkabeleinheiten', data['Anzahl Heizkabeleinheiten'], 'Stk'); addPair(fragments.section2, 'Trennkasten', data['Trennkasten'], 'Stk'); addPair(fragments.section2, 'Heizkabeltyp', data['Heizkabeltyp']); addPair(fragments.section2, 'Schaltung', data['Schaltung']); if (data['PT 100']) addPair(fragments.section2, 'Messwertgeber', `PT 100: ${data['PT 100']}`, 'Stk'); if (data['NiCr-Ni']) addPair(fragments.section2, 'Messwertgeber', `NiCr-Ni: ${data['NiCr-Ni']}`, 'Stk'); addPair(fragments.section3, 'Regler', data['Regler'], '°C'); addPair(fragments.section3, 'Sicherheitsregler/Begrenzer', data['Sicherheitsregler/Begrenzer'], '°C'); addPair(fragments.section3, 'Wächter', data['Wächter'], '°C'); addPair(fragments.footer, 'Projekt-Nr', data['Projekt-Nr']); addPair(fragments.footer, 'geprüft von', data['geprüft von']); addPair(fragments.footer, 'am', data['am']); const createSection = (frag, className) => { if (frag.hasChildNodes()) { const section = document.createElement('div'); section.className = className; section.appendChild(frag); protocolCard.appendChild(section); } }; createSection(fragments.main, 'card-main'); createSection(fragments.section1, 'card-section'); createSection(fragments.section2, 'card-section'); createSection(fragments.section3, 'card-section'); createSection(fragments.footer, 'card-footer'); docLinkContainer.innerHTML = ''; if (data['Dokumentation']) { const url = data['Dokumentation']; if (!isValidDocUrl(url)) { console.warn('Invalid documentation URL provided:', url); return; } const button = document.createElement('button'); button.className = 'btn doc-link-btn'; button.dataset.url = url; const isCached = await isUrlCached(url); if (isCached) { button.textContent = t('docOpenOffline'); button.onclick = () => window.open(url, '_blank'); } else { button.textContent = navigator.onLine ? t('docDownload') : t('docDownloadLater'); button.addEventListener('click', handleDocButtonClick); } docLinkContainer.appendChild(button); } }
 
     function applyConfig(config) {
+        // Diese Funktion ist der Schlüssel: Sie lädt das Design aus der config.json
         const selectedDesign = designs[config.design] || designs['thixx_standard'];
         
         if (!isIOS()) { 
@@ -304,11 +312,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedDesign.lockTheme) { if (themeSwitcher) themeSwitcher.classList.add('hidden'); } else { if (themeSwitcher) themeSwitcher.classList.remove('hidden'); }
         const customerBtnImg = document.querySelector('.theme-btn[data-theme="customer-brand"] img');
         if (customerBtnImg && selectedDesign.icons?.icon512) { customerBtnImg.src = selectedDesign.icons.icon512; }
+        
+        // HIER PASSIERT DIE MAGIE:
+        // Überschreibt die CSS-Standardfarben (Rot/Grau) mit den Peter-Pohl-Farben (Blau/Gelb)
         if (selectedDesign.brandColors?.primary) { document.documentElement.style.setProperty('--primary-color-override', selectedDesign.brandColors.primary); }
         if (selectedDesign.brandColors?.secondary) { document.documentElement.style.setProperty('--secondary-color-override', selectedDesign.brandColors.secondary); }
     }
 
     // --- NFC Logic ---
+    // ... (unverändert) ...
     async function handleNfcAction() { if (appState.isNfcActionActive || appState.isCooldownActive) return; const writeTab = document.getElementById('write-tab'); const isWriteMode = writeTab?.classList.contains('active') || false; if (!isWriteMode) { showMessage(t('messages.scanToReadInfo'), 'info'); return; } appState.isNfcActionActive = true; appState.abortController = new AbortController(); appState.nfcTimeoutId = setTimeout(() => { if (appState.abortController && !appState.abortController.signal.aborted) { appState.abortController.abort(new DOMException('NFC Operation Timed Out', 'TimeoutError')); } }, CONFIG.NFC_WRITE_TIMEOUT); try { const ndef = new NDEFReader(); const validationErrors = validateForm(); if (validationErrors.length > 0) { throw new Error(validationErrors.join('\n')); } setNfcBadge('writing'); const urlPayload = generateUrlFromForm(); const message = { records: [{ recordType: "url", data: urlPayload }] }; await writeWithRetries(ndef, message); } catch (error) { clearTimeout(appState.nfcTimeoutId); if (error.name !== 'AbortError') { ErrorHandler.handle(error, 'NFCAction'); } else if (error.message === 'NFC Operation Timed Out') { const timeoutError = new DOMException('Write operation timed out.', 'TimeoutError'); ErrorHandler.handle(timeoutError, 'NFCAction'); } abortNfcAction(); startCooldown(); } }
     async function writeWithRetries(ndef, message) { for (let attempt = 1; attempt <= CONFIG.MAX_WRITE_RETRIES; attempt++) { try { showMessage(t('messages.writeAttempt', { replace: { attempt, total: CONFIG.MAX_WRITE_RETRIES } }), 'info', CONFIG.NFC_WRITE_TIMEOUT); await ndef.write(message, { signal: appState.abortController.signal }); clearTimeout(appState.nfcTimeoutId); setNfcBadge('success', t('status.tagWritten')); showMessage(t('messages.writeSuccess'), 'ok'); 
     
@@ -323,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return; } catch (error) { console.warn(`Write attempt ${attempt} failed:`, error); if (attempt === CONFIG.MAX_WRITE_RETRIES || ['TimeoutError', 'AbortError'].includes(error.name)) { throw error; } await new Promise(resolve => setTimeout(resolve, 200)); } } }
 
     // --- Data Processing & Form Handling ---
+    // ... (unverändert) ...
     function processUrlParameters() {
         const params = new URLSearchParams(window.location.search);
         if (params.toString() === '') return false;
@@ -378,12 +391,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function validateForm() { const errors = []; const voltageInput = form.elements['Spannung']; if(voltageInput) { const voltage = parseFloat(voltageInput.value); if (voltage && (voltage < 0 || voltage > 1000)) { errors.push(t('errors.invalidVoltage')); } } const docUrlInput = form.elements['Dokumentation']; if(docUrlInput) { const docUrl = docUrlInput.value; if (docUrl && !isValidDocUrl(docUrl)) { errors.push(t('errors.invalidDocUrl')); } } const payloadByteSize = new TextEncoder().encode(generateUrlFromForm()).length; if (payloadByteSize > CONFIG.MAX_PAYLOAD_SIZE) { errors.push(t('messages.payloadTooLarge')); } return errors; }
 
     // --- Helper & State Functions ---
+    // ... (unverändert) ...
     function startCooldown() { appState.isCooldownActive = true; setNfcBadge('cooldown'); setTimeout(() => { appState.isCooldownActive = false; if ('NDEFReader' in window) setNfcBadge('idle'); }, CONFIG.COOLDOWN_DURATION) }
     function abortNfcAction() { clearTimeout(appState.nfcTimeoutId); if (appState.gracePeriodTimeoutId) { clearTimeout(appState.gracePeriodTimeoutId); appState.gracePeriodTimeoutId = null; } if (appState.abortController && !appState.abortController.signal.aborted) { appState.abortController.abort(new DOMException('User aborted', 'AbortError')); } appState.abortController = null; appState.isNfcActionActive = false; }
     function addLogEntry(message, type = 'info') { const timestamp = new Date().toLocaleTimeString(document.documentElement.lang, { hour: '2-digit', minute: '2-digit', second: '2-digit' }); appState.eventLog.unshift({ timestamp, message, type }); if (appState.eventLog.length > CONFIG.MAX_LOG_ENTRIES) appState.eventLog.pop(); renderLog(); }
     function renderLog() { if (!eventLogOutput) return; eventLogOutput.innerHTML = ''; appState.eventLog.forEach(entry => { const div = document.createElement('div'); div.className = `log-entry ${entry.type}`; const timestamp = document.createElement('span'); timestamp.className = 'log-timestamp'; timestamp.textContent = entry.timestamp; const message = document.createTextNode(` ${entry.message}`); div.appendChild(timestamp); div.appendChild(message); eventLogOutput.appendChild(div); }); }
 
     // --- Service Worker & Cache ---
+    // ... (unverändert) ...
     async function isUrlCached(url) { if (!('caches' in window)) return false; try { const cache = await caches.open('thixx-docs-v1'); const request = new Request(url, { mode: 'no-cors' }); const response = await cache.match(request); return !!response; } catch (error) { console.error("Cache check failed:", error); return false; } }
     async function handleDocButtonClick(event) { const button = event.target; const url = button.dataset.url; if (navigator.onLine) { window.open(url, '_blank'); button.textContent = t('docOpenOffline'); button.onclick = () => window.open(url, '_blank'); if (navigator.serviceWorker.controller) { navigator.serviceWorker.controller.postMessage({ action: 'cache-doc', url: url }); } } else { showMessage(t('docDownloadLater'), 'info'); button.textContent = t('docDownloadPending'); button.disabled = true; } }
 
@@ -395,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (oldHref && oldHref.startsWith('blob:')) { 
             URL.revokeObjectURL(oldHref); 
         } 
-        // ANGEPASST: start_url und scope aus der globalen SCOPE-Konstante
+        // KORRIGIERT: start_url und scope aus der globalen SCOPE-Konstante
         const newManifest = { 
             name: design.appName, 
             short_name: design.short_name, 
@@ -413,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const blob = new Blob([JSON.stringify(newManifest)], { type: 'application/json' }); 
         manifestLink.href = URL.createObjectURL(blob); 
     }
+    // ... (Rest der UI/UX-Funktionen unverändert) ...
     function applyTheme(themeName) { const themeButtons = document.querySelectorAll('.theme-btn'); document.documentElement.setAttribute('data-theme', themeName); localStorage.setItem('thixx-theme', themeName); themeButtons.forEach(btn => { btn.classList.toggle('active', btn.dataset.theme === themeName); }); const metaThemeColor = document.querySelector('meta[name="theme-color"]'); if (metaThemeColor) { const colors = { dark: '#0f172a', thixx: '#f8f9fa', 'customer-brand': '#FCFCFD' }; metaThemeColor.setAttribute('content', colors[themeName] || '#FCFCFD'); } }
     function setupReadTabInitialState() { protocolCard.innerHTML = ''; const p = document.createElement('p'); p.className = 'placeholder-text'; p.textContent = t('placeholderRead'); protocolCard.appendChild(p); docLinkContainer.innerHTML = ''; if(readActions) readActions.classList.add('hidden'); }
     function initCollapsibles() { document.querySelectorAll('.collapsible').forEach(el => makeCollapsible(el)) }
@@ -565,7 +581,22 @@ document.addEventListener('DOMContentLoaded', () => {
         switchTab('write-tab'); 
         showMessage(t('messages.copySuccess'), 'ok');
     }
-    function saveFormAsJson() { const data = getFormData(); const jsonString = JSON.stringify(data, null, 2); const blob = new Blob([jsonString], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; const today = new Date().toISOString().slice(0, 10); a.download = `thixx-pps-${today}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(() => { URL.revokeObjectURL(url); }, 100); showMessage(t('messages.saveSuccess'), 'ok'); }
+    function saveFormAsJson() { 
+        const data = getFormData(); 
+        const jsonString = JSON.stringify(data, null, 2); 
+        const blob = new Blob([jsonString], { type: 'application/json' }); 
+        const url = URL.createObjectURL(blob); 
+        const a = document.createElement('a'); 
+        a.href = url; 
+        const today = new Date().toISOString().slice(0, 10); 
+        // KORRIGIERT: Dateiname für den Download
+        a.download = `thixx-pps-${today}.json`; 
+        document.body.appendChild(a); 
+        a.click(); 
+        document.body.removeChild(a); 
+        setTimeout(() => { URL.revokeObjectURL(url); }, 100); 
+        showMessage(t('messages.saveSuccess'), 'ok'); 
+    }
     function loadJsonIntoForm(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); appState.scannedDataObject = data; populateFormFromScan(); showMessage(t('messages.loadSuccess'), 'ok') } catch (error) { const userMessage = error instanceof SyntaxError ? 'Die JSON-Datei hat ein ungültiges Format.' : error.message; ErrorHandler.handle(new Error(userMessage), 'LoadJSON'); } finally { event.target.value = null } }; reader.readAsText(file) }
     
     function autoExpandToFitScreen(elementToExpand) {
@@ -634,3 +665,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+

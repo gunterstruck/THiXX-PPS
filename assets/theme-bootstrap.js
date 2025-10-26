@@ -15,7 +15,7 @@
 
     // --- 3️⃣ config.json direkt synchron laden
     const request = new XMLHttpRequest();
-    // ANGEPASST: Pfad zur Konfiguration im neuen Scope
+    // KORRIGIERT: Pfad auf /THiXX-PPS/config.json gesetzt
     request.open('GET', '/THiXX-PPS/config.json', false); // synchron, da sehr klein
     request.send(null);
 
@@ -26,7 +26,7 @@
           // --- Design-Mapping (wie in app.js)
           const designThemes = {
             'thixx_standard': 'dark',
-            'peterpohl': 'customer-brand', // UNVERÄNDERT: Korrektes Mapping war bereits vorhanden
+            'peterpohl': 'customer-brand',
             'sigx': 'customer-brand',
             'othimm': 'customer-brand'
           };
@@ -47,3 +47,4 @@
     document.documentElement.setAttribute('data-theme', 'customer-brand');
   }
 })();
+
