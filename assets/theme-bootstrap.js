@@ -7,6 +7,12 @@
  */
 (function() {
   try {
+
+
+    // --- 0️⃣ SCOPE DEFINITION (WICHTIG: Muss mit index.html übereinstimmen!)
+    const SCOPE = '/THiXX-PPS/'; // ← HIER ANPASSEN für verschiedene Deployments
+
+
     // --- 1️⃣ Alte lokale Themes entfernen
     localStorage.removeItem('thixx-theme');
 
