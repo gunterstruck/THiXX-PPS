@@ -52,7 +52,7 @@
     let selectedDesign = designs['thixx_standard']; // Fallback
 
     const request = new XMLHttpRequest();
-    request.open('GET', SCOPE + 'config.json', false); // synchron
+    request.open('GET', SCOPE + 'config.json', false); // ✅ KORRIGIERT: Verwendet jetzt SCOPE
     request.send(null);
 
     if (request.status === 200) {
@@ -88,6 +88,10 @@
       }
     }
 
+    // --- 6️⃣ Transitions aktivieren (ANTI-FLICKER!)
+    // Nach dem Theme-Setup Klasse hinzufügen, damit CSS-Transitions aktiv werden
+    document.documentElement.classList.add('theme-loaded');
+
     // --- Hilfsfunktion: Farbe aufhellen/abdunkeln
     function adjustColor(color, percent) {
       try {
@@ -113,5 +117,6 @@
   } catch (e) {
     console.error('Theme initialization failed:', e);
     document.documentElement.setAttribute('data-theme', 'customer-brand');
+    document.documentElement.classList.add('theme-loaded');
   }
 })();
