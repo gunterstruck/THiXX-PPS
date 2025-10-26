@@ -52,7 +52,7 @@
     let selectedDesign = designs['thixx_standard']; // Fallback
 
     const request = new XMLHttpRequest();
-    request.open('GET', '/ThiXX/config.json', false); // synchron
+    request.open('GET', SCOPE + 'config.json', false); // synchron
     request.send(null);
 
     if (request.status === 200) {
