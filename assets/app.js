@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } 
     },
     'peterpohl': { 
-        appName: "Dipl.-Ing. Peter Pohl NFC Tool", 
+        appName: "Peter Pohl NFC Tool", 
         short_name: "Peter Pohl", 
         theme: "customer-brand", 
         lockTheme: false, 
