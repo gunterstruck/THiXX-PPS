@@ -1,4 +1,5 @@
-const APP_CACHE_NAME = 'thixx-robust-v6-36'; // Version erhöht, um Update auszulösen
+// ANGEPASST: Cache-Name für die neue App-Version
+const APP_CACHE_NAME = 'thixx-pps-robust-v1';
 const DOC_CACHE_NAME = 'thixx-docs-v1';
 
 /*
@@ -6,21 +7,24 @@ const DOC_CACHE_NAME = 'thixx-docs-v1';
  * Fehlende Dateien können die Service Worker-Installation beeinträchtigen,
  * auch wenn safeCacheAddAll einzelne Fehler abfängt.
  */
+// ANGEPASST: Alle Pfade auf den neuen Scope /THiXX-PPS/ aktualisiert
 const APP_ASSETS_TO_CACHE = [
-    '/ThiXX/index.html',
-    '/ThiXX/offline.html',
-    '/ThiXX/assets/style.css',
-    '/ThiXX/assets/app.js',
-    '/ThiXX/assets/theme-bootstrap.js',
-    '/ThiXX/config.json',
-    '/ThiXX/assets/THiXX_Icon_Grau6C6B66_Transparent_192x192.png',
-    '/ThiXX/assets/THiXX_Icon_Grau6C6B66_Transparent_512x512.png',
-    '/ThiXX/assets/icon-192.png',
-    '/ThiXX/assets/icon-512.png',
-    '/ThiXX/lang/de.json',
-    '/ThiXX/lang/en.json',
-    '/ThiXX/lang/es.json',
-    '/ThiXX/lang/fr.json'
+    '/THiXX-PPS/index.html',
+    '/THiXX-PPS/offline.html',
+    '/THiXX-PPS/assets/style.css',
+    '/THiXX-PPS/assets/app.js',
+    '/THiXX-PPS/assets/theme-bootstrap.js',
+    '/THiXX-PPS/config.json',
+    '/THiXX-PPS/assets/THiXX_Icon_Grau6C6B66_Transparent_192x192.png', // Fallback-Icon
+    '/THiXX-PPS/assets/THiXX_Icon_Grau6C6B66_Transparent_512x512.png', // Fallback-Icon
+    '/THiXX-PPS/assets/icon-192.png', // O.Thimm Icon (Beispiel)
+    '/THiXX-PPS/assets/icon-512.png', // O.Thimm Icon (Beispiel)
+    '/THiXX-PPS/assets/PP-192x192.png', // Peter Pohl Icon
+    '/THiXX-PPS/assets/PP-512x512.png', // Peter Pohl Icon
+    '/THiXX-PPS/lang/de.json',
+    '/THiXX-PPS/lang/en.json',
+    '/THiXX-PPS/lang/es.json',
+    '/THiXX-PPS/lang/fr.json'
 ];
 
 async function safeCacheAddAll(cache, urls) {
@@ -35,6 +39,8 @@ async function safeCacheAddAll(cache, urls) {
 }
 
 self.addEventListener('install', (event) => {
+    // Hinzugefügt: Peter Pohl Icons in die Cache-Liste aufgenommen
+    // (Annahme: Die Liste oben wird korrekt gepflegt)
     event.waitUntil(
         caches.open(APP_CACHE_NAME)
             .then((cache) => safeCacheAddAll(cache, APP_ASSETS_TO_CACHE))
@@ -61,15 +67,13 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(request.url);
 
     // KORREKTUR (PRIO 1): PDF-Caching für 'no-cors' Anfragen (opaque responses).
-    // Die 'response.ok' Prüfung wurde entfernt, da sie bei opaque responses immer fehlschlägt.
-    // So werden externe PDFs korrekt gecacht und offline verfügbar gemacht.
+    // (Keine Änderung an dieser Logik nötig)
     if (url.pathname.endsWith('.pdf')) {
         event.respondWith(
             caches.open(DOC_CACHE_NAME).then(async (cache) => {
                 const noCorsRequest = new Request(request.url, { mode: 'no-cors' });
                 try {
                     const networkResponse = await fetch(noCorsRequest);
-                    // Lege die (potenziell opaque) Antwort direkt in den Cache.
                     cache.put(noCorsRequest, networkResponse.clone());
                     return networkResponse;
                 } catch (error) {
@@ -78,7 +82,6 @@ self.addEventListener('fetch', (event) => {
                     if (cachedResponse) {
                         return cachedResponse;
                     }
-                    // Wenn auch im Cache nichts ist, Fehler werfen.
                     throw error;
                 }
             })
@@ -86,8 +89,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // ÄNDERUNG: "Cache First" anstelle von "Network First" für Navigationen
-    // Dies sorgt für einen sofortigen App-Start aus dem Cache.
+    // ÄNDERUNG: "Cache First" für Navigationen
     if (request.mode === 'navigate') {
         event.respondWith((async () => {
           const cachedResponse = await caches.match(request, { ignoreSearch: true });
@@ -97,11 +99,11 @@ self.addEventListener('fetch', (event) => {
 
           try {
             const networkResponse = await fetch(request);
-            // Optional: Hier könnte man die Antwort in den Cache legen, wenn sie noch nicht da ist.
             return networkResponse;
           } catch (error) {
             console.log('[Service Worker] Navigate fetch failed, falling back to offline page.');
-            return await caches.match('/ThiXX/offline.html');
+            // ANGEPASST: Pfad zur Offline-Seite im neuen Scope
+            return await caches.match('/THiXX-PPS/offline.html');
           }
         })());
         return;
@@ -134,5 +136,3 @@ self.addEventListener('message', (event) => {
         self.skipWaiting();
     }
 });
-
-

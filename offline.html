@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- ROBUSTHEITS-UPDATE (Theme-Fix): data-theme auf <html> verschoben. -->
-<html lang="de" data-theme="dark">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline - ThiXX</title>
-    <link rel="stylesheet" href="/ThiXX/assets/style.css">
+    <title>Offline - Peter Pohl NFC Tool</title>
+    <!-- ANGEPASST: Pfad zum Stylesheet -->
+    <link rel="stylesheet" href="/THiXX-PPS/assets/style.css">
     <style>
         body {
             display: flex;
@@ -14,33 +14,30 @@
             min-height: 100vh;
             text-align: center;
         }
-        .offline-container {
-            max-width: 500px;
-            padding: 2rem;
-            background: var(--surface-color);
+        .container {
+            max-width: 600px;
+        }
+        .offline-box {
+            padding: 2.5rem;
+            background: rgba(var(--surface-color-rgb), 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(var(--border-color-rgb), 0.3);
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         h1 {
             color: var(--primary-color);
             margin-bottom: 1rem;
         }
-        p {
-            margin-bottom: 2rem;
-            color: var(--light-text-color);
-        }
-        .btn {
-            display: inline-block;
-            width: auto;
-        }
     </style>
 </head>
-<body>
-    <div class="offline-container">
-        <h1>Sie sind offline</h1>
-        <p>Bitte stellen Sie eine Internetverbindung her und versuchen Sie es erneut.</p>
-        <button class="btn" onclick="location.reload()">Erneut versuchen</button>
+<body data-theme="customer-brand">
+    <div class="container">
+        <div class="offline-box">
+            <h1>Offline</h1>
+            <p>Sie sind derzeit offline. Diese Seite kann nicht angezeigt werden, da keine Verbindung zum Netzwerk besteht.</p>
+            <p>Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.</p>
+        </div>
     </div>
 </body>
 </html>
-
